@@ -1,22 +1,48 @@
 const express = require('express');
-const fetch = require('node-fetch');  // Confirma que você instalou: npm install node-fetch
+const fetch = require('node-fetch'); // Se ainda não adicionou
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
+app.use(express.json());
+
+const ASAAS_TOKEN = 'SEU_TOKEN_ASAAS'; // Coloca teu token de API aqui
 
 app.get('/generate-pix', async (req, res) => {
     try {
-        const response = await fetch('https://www.asaas.com/api/v3/payments', {
+        // 1️⃣ Cria o cliente
+        const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'access_token': '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm'
+                'access_token': ASAAS_TOKEN
+            },
+            body: JSON.stringify({
+                name: 'Cliente VIP',
+                cpfCnpj: '00000000000', // Pode ser fictício, mas precisa de um valor válido (11 ou 14 dígitos)
+                email: 'cliente@example.com',
+                phone: '47999999999'
+            })
+        });
+
+        const clienteData = await clienteResponse.json();
+
+        if (!clienteData.id) {
+            return res.json({ success: false, message: 'Erro ao criar cliente', details: clienteData });
+        }
+
+        // 2️⃣ Gera a cobrança PIX
+        const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'application/json',
+                'access_token': ASAAS_TOKEN
             },
             body: JSON.stringify({
                 billingType: 'PIX',
-                customer: 'ID_DO_CLIENTE',
+                customer: clienteData.id,
                 value: 9.90,
                 dueDate: '2025-05-01',
                 description: 'Cobrança Conteúdo VIP',
@@ -24,44 +50,33 @@ app.get('/generate-pix', async (req, res) => {
             })
         });
 
-        const text = await response.text();
-        console.log('Resposta da criação:', text);
+        const cobrancaData = await cobrancaResponse.json();
 
-        if (!response.ok) {
-            return res.status(response.status).send('Erro na requisição: ' + text);
+        if (!cobrancaData.id) {
+            return res.json({ success: false, message: 'Erro ao gerar cobrança', details: cobrancaData });
         }
 
-        const data = JSON.parse(text);
+        // 3️⃣ Busca o QR Code PIX
+        const pixResponse = await fetch(`https://www.asaas.com/api/v3/payments/${cobrancaData.id}/pixQrCode`, {
+            headers: { 'access_token': ASAAS_TOKEN }
+        });
 
-        if (data.id) {
-            const pixResponse = await fetch(`https://www.asaas.com/api/v3/payments/${data.id}/pixQrCode`, {
-                headers: { 'access_token': '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm' }
-            });
+        const pixData = await pixResponse.json();
 
-            const pixText = await pixResponse.text();
-            console.log('Resposta do QR Code:', pixText);
-
-            if (!pixResponse.ok) {
-                return res.status(pixResponse.status).send('Erro ao buscar QR Code: ' + pixText);
-            }
-
-            const pixData = JSON.parse(pixText);
-
-            if (pixData.payload) {
-                res.json({ success: true, pixCode: pixData.payload });
-            } else {
-                res.json({ success: false, message: 'QR Code não encontrado' });
-            }
+        if (pixData.payload) {
+            res.json({ success: true, pixCode: pixData.payload });
         } else {
-            res.json({ success: false, message: 'Cobrança não criada' });
+            res.json({ success: false, message: 'Erro ao gerar QR Code', details: pixData });
         }
+
     } catch (error) {
-        console.error('Erro geral:', error);
-        res.status(500).send('Erro interno no servidor');
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Erro no servidor', error });
     }
 });
 
 app.get('/check-payment', async (req, res) => {
+    // Exemplo básico de retorno fixo
     const paymentStatus = 'RECEIVED';
     res.json({ paymentStatus });
 });
