@@ -3,7 +3,7 @@ const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 document.getElementById('btnStart').addEventListener('click', function() {
     // Quando o botão "Iniciar" for pressionado, envia a cobrança PIX para o Asaas
     fetch('https://telegram-miniapp-vo9d.onrender.com/generate-pix', {
-        method: 'GET' // Garantir que seja POST
+        method: 'POST' // Garantir que seja POST
     })
     .then(response => response.json())
     .then(data => {
