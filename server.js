@@ -2,19 +2,18 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Importando fetch
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 app.use(express.static('public'));
-app.use(express.json()); // Importante para aceitar JSON no corpo das requests
+app.use(express.json());
 
-// Substitua pelo seu token Asaas real
-const ASAAS_TOKEN = "$aact_prod_000MzkwODA2MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm";
+// 🔐 Coloca aqui seu token real entre aspas
+const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm';
 
 // Rota para gerar o PIX
 app.post('/generate-pix', async (req, res) => {
     try {
-        // 1️⃣ Cria um cliente no Asaas
+        // Cria cliente
         const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
             method: 'POST',
             headers: {
@@ -24,19 +23,21 @@ app.post('/generate-pix', async (req, res) => {
             },
             body: JSON.stringify({
                 name: 'Cliente VIP',
-                cpfCnpj: '00000000000', // ou CNPJ válido se quiser
+                cpfCnpj: '00000000000',
                 email: 'cliente@example.com',
                 phone: '47999999999'
             })
         });
 
-        const clienteData = await clienteResponse.json();
+        const rawClienteText = await clienteResponse.text();
+        console.log('🔍 Resposta cliente:', rawClienteText);
+        const clienteData = JSON.parse(rawClienteText);
 
         if (!clienteData.id) {
             return res.status(500).json({ success: false, message: 'Erro ao criar cliente' });
         }
 
-        // 2️⃣ Cria a cobrança PIX pro cliente criado
+        // Cria cobrança PIX
         const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
             method: 'POST',
             headers: {
@@ -54,33 +55,36 @@ app.post('/generate-pix', async (req, res) => {
             })
         });
 
-        const cobrancaData = await cobrancaResponse.json();
+        const rawCobrancaText = await cobrancaResponse.text();
+        console.log('🔍 Resposta cobrança:', rawCobrancaText);
+        const cobrancaData = JSON.parse(rawCobrancaText);
 
         if (!cobrancaData.id) {
             return res.status(500).json({ success: false, message: 'Erro ao gerar cobrança' });
         }
 
-        // 3️⃣ Busca o QR Code PIX
+        // Busca QR Code PIX
         const pixResponse = await fetch(`https://www.asaas.com/api/v3/payments/${cobrancaData.id}/pixQrCode`, {
             headers: { 'access_token': ASAAS_TOKEN }
         });
 
-        const pixData = await pixResponse.json();
+        const rawPixText = await pixResponse.text();
+        console.log('🔍 Resposta PIX:', rawPixText);
+        const pixData = JSON.parse(rawPixText);
 
         if (pixData.payload) {
-            // Envia o QR Code PIX para o front-end
             res.json({ success: true, pixCode: pixData.payload });
         } else {
             res.status(500).json({ success: false, message: 'Erro ao gerar QR Code' });
         }
 
     } catch (error) {
-        console.error(error);
+        console.error('❌ Erro geral:', error);
         res.status(500).json({ success: false, message: 'Erro ao gerar o pix, tente novamente.' });
     }
 });
 
-// Rota fictícia para checar pagamento (simulação)
+// Rota de verificação fictícia
 app.get('/check-payment', async (req, res) => {
     const paymentStatus = 'RECEIVED';
     res.json({ paymentStatus });
