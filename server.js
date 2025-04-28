@@ -27,7 +27,7 @@ app.post('/generate-pix', async (req, res) => {
             },
             body: JSON.stringify({
                 name: 'Cliente VIP',
-                cpfCnpj: '00000000000',
+                cpfCnpj: '14541692813',
                 email: 'cliente@example.com',
                 phone: '47999999999'
             })
