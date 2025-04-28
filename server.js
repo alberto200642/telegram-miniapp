@@ -87,7 +87,11 @@ app.post('/generate-pix', async (req, res) => {
         const pixData = JSON.parse(pixText);
 
         if (pixData.payload) {
-            res.json({ success: true, pixCode: pixData.payload });
+            res.json({ 
+                success: true, 
+                pixCode: pixData.payload,
+                pixImage: pixData.encodedImage // 👈 aqui pega a imagem base64 do Asaas
+            });
         } else {
             res.status(500).json({ success: false, message: 'Erro ao gerar QR Code' });
         }
