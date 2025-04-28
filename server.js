@@ -18,7 +18,7 @@ if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('$aact_prod_')) {
 app.post('/generate-pix', async (req, res) => {
     try {
         // 📌 Cria cliente
-        const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
+        const clienteResponse = await fetch('https://api.asaas.com/v3/customers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ app.post('/generate-pix', async (req, res) => {
         const clienteData = JSON.parse(clienteText);
 
         // 📌 Cria cobrança PIX
-        const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
+        const cobrancaResponse = await fetch('https://api.asaas.com/v3/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ app.post('/generate-pix', async (req, res) => {
         const cobrancaData = JSON.parse(cobrancaText);
 
         // 📌 Busca QR Code PIX
-        const pixResponse = await fetch(`https://www.asaas.com/api/v3/payments/${cobrancaData.id}/pixQrCode`, {
+        const pixResponse = await fetch(`https://api.asaas.com/v3/payments/${cobrancaData.id}/pixQrCode`, {
             headers: { 'access_token': ASAAS_TOKEN }
         });
 
