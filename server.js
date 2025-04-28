@@ -8,7 +8,7 @@ app.use(express.static('public'));
 app.use(express.json());
 
 // 🔐 Coloque seu token ASAAS real aqui
-const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3';
+const ASAAS_TOKEN = 'aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3';
 
 if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('$aact_prod_')) {
     console.error('⚠️ Token ASAAS não configurado corretamente.');
@@ -29,7 +29,7 @@ app.post('/generate-pix', async (req, res) => {
                 name: 'Cliente VIP',
                 cpfCnpj: '14541692813',
                 email: 'cliente@example.com',
-                phone: '47999999999'
+                phone: '16997874674'
             })
         });
 
