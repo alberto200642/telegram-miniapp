@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 10000;
+const port = process.env.PORT || 3000;
 
 // Importando fetch
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
