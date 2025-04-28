@@ -7,13 +7,17 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 app.use(express.static('public'));
 app.use(express.json());
 
-// 🔐 Coloca aqui seu token real entre aspas
+// 🔐 Coloque seu token ASAAS real aqui
 const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm';
 
-// Rota para gerar o PIX
+if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('$aact_prod_')) {
+    console.error('⚠️ Token ASAAS não configurado corretamente.');
+}
+
+// 🔥 Rota para gerar o PIX
 app.post('/generate-pix', async (req, res) => {
     try {
-        // Cria cliente
+        // 📌 Cria cliente
         const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
             method: 'POST',
             headers: {
@@ -29,15 +33,17 @@ app.post('/generate-pix', async (req, res) => {
             })
         });
 
-        const rawClienteText = await clienteResponse.text();
-        console.log('🔍 Resposta cliente:', rawClienteText);
-        const clienteData = JSON.parse(rawClienteText);
+        const clienteText = await clienteResponse.text();
+        console.log('🔍 Resposta cliente:', clienteText);
 
-        if (!clienteData.id) {
+        if (!clienteResponse.ok) {
+            console.error('❌ Erro ao criar cliente:', clienteResponse.status, clienteText);
             return res.status(500).json({ success: false, message: 'Erro ao criar cliente' });
         }
 
-        // Cria cobrança PIX
+        const clienteData = JSON.parse(clienteText);
+
+        // 📌 Cria cobrança PIX
         const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
             method: 'POST',
             headers: {
@@ -55,22 +61,30 @@ app.post('/generate-pix', async (req, res) => {
             })
         });
 
-        const rawCobrancaText = await cobrancaResponse.text();
-        console.log('🔍 Resposta cobrança:', rawCobrancaText);
-        const cobrancaData = JSON.parse(rawCobrancaText);
+        const cobrancaText = await cobrancaResponse.text();
+        console.log('🔍 Resposta cobrança:', cobrancaText);
 
-        if (!cobrancaData.id) {
+        if (!cobrancaResponse.ok) {
+            console.error('❌ Erro ao gerar cobrança:', cobrancaResponse.status, cobrancaText);
             return res.status(500).json({ success: false, message: 'Erro ao gerar cobrança' });
         }
 
-        // Busca QR Code PIX
+        const cobrancaData = JSON.parse(cobrancaText);
+
+        // 📌 Busca QR Code PIX
         const pixResponse = await fetch(`https://www.asaas.com/api/v3/payments/${cobrancaData.id}/pixQrCode`, {
             headers: { 'access_token': ASAAS_TOKEN }
         });
 
-        const rawPixText = await pixResponse.text();
-        console.log('🔍 Resposta PIX:', rawPixText);
-        const pixData = JSON.parse(rawPixText);
+        const pixText = await pixResponse.text();
+        console.log('🔍 Resposta PIX:', pixText);
+
+        if (!pixResponse.ok) {
+            console.error('❌ Erro ao buscar QR Code:', pixResponse.status, pixText);
+            return res.status(500).json({ success: false, message: 'Erro ao gerar QR Code' });
+        }
+
+        const pixData = JSON.parse(pixText);
 
         if (pixData.payload) {
             res.json({ success: true, pixCode: pixData.payload });
@@ -84,12 +98,12 @@ app.post('/generate-pix', async (req, res) => {
     }
 });
 
-// Rota de verificação fictícia
-app.get('/check-payment', async (req, res) => {
+// 📌 Rota de verificação fictícia
+app.get('/check-payment', (req, res) => {
     const paymentStatus = 'RECEIVED';
     res.json({ paymentStatus });
 });
 
 app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
+    console.log(`🚀 Servidor rodando na porta ${port}`);
 });
