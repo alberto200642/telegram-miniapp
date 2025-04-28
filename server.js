@@ -23,7 +23,7 @@ app.post('/generate-pix', async (req, res) => {
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'access_token: aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3'
+                'access_token': ASAAS_TOKEN
             },
             body: JSON.stringify({
                 name: 'Cliente VIP',
@@ -49,7 +49,7 @@ app.post('/generate-pix', async (req, res) => {
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'access_token: aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3'
+                'access_token': ASAAS_TOKEN
             },
             body: JSON.stringify({
                 billingType: 'PIX',
