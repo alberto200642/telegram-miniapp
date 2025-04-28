@@ -1,23 +1,38 @@
-<div id="startSection">
-    <h1>Bem-vindo!!</h1>
-    <p>Clique no botão abaixo para iniciar o processo e ter acesso ao conteúdo VIP!</p>
-    <button id="btnStart">🚀 Iniciar</button>
-</div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini App - Prévias da Sofia</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
 
-<div id="pixSection" style="display:none;">
-    <h2>💳 Efetue o pagamento via PIX:</h2>
-    <p>Valor: <strong>R$ 9.90</strong></p>
-    <p>Use o código abaixo:</p>
-    <pre id="pixCode"></pre>
-    <button id="copyButton">📋 Copiar Código</button>
-    <br><br>
-    <img id="pixQrCode" src="" alt="QR Code PIX" style="max-width: 100%; height: auto;">
-    <br><br>
-    <button id="paidButton">✅ Já paguei</button>
-</div>
+        <div id="startSection">
+            <h1>Bem-vindo!!</h1>
+            <p>Clique no botão abaixo para iniciar o processo e ter acesso ao conteúdo VIP!</p>
+            <button id="btnStart">🚀 Iniciar</button>
+        </div>
 
-<div id="successMessage" style="display:none;">
-    <h2>🎉 Pagamento Confirmado!</h2>
-    <p>Você tem acesso ao conteúdo VIP! Acesse agora:</p>
-    <a href="https://t.me/+iN6NGTm_LMtlNTYx" target="_blank">👉 Clique aqui para acessar</a>
-</div>
+        <div id="pixSection" style="display:none;">
+            <h2>💳 Efetue o pagamento via PIX:</h2>
+            <p>Valor: <strong>R$ 9.90</strong></p>
+            <img id="pixImage" src="" alt="QR Code PIX">
+            <p>Ou copie o código abaixo:</p>
+            <pre id="pixCode"></pre>
+            <button id="copyButton">📋 Copiar Código</button>
+            <button id="paidButton">✅ Já paguei</button>
+        </div>
+
+        <div id="successMessage" style="display:none;">
+            <h2>🎉 Pagamento Confirmado!</h2>
+            <p>Você tem acesso ao conteúdo VIP!</p>
+            <a href="https://t.me/+iN6NGTm_LMtlNTYx" target="_blank">👉 Clique aqui para acessar 👈</a>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
