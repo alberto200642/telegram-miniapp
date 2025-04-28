@@ -1,6 +1,7 @@
 const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 
 document.getElementById("btnStart").addEventListener("click", async () => {
+    document.getElementById("startSection").style.display = "none";
     const pixSection = document.getElementById("pixSection");
     pixSection.style.display = "block";
 
@@ -14,10 +15,7 @@ document.getElementById("btnStart").addEventListener("click", async () => {
     const data = await response.json();
 
     if (data.success) {
-        // Exibir código PIX
         document.getElementById("pixCode").textContent = data.pixCode;
-
-        // Exibir QR Code base64 vindo do backend
         document.getElementById("pixQrCode").src = `data:image/png;base64,${data.pixImage}`;
     } else {
         alert("Erro ao gerar PIX. Tente novamente.");
@@ -33,7 +31,15 @@ document.getElementById("copyButton").addEventListener("click", () => {
 });
 
 // Já paguei
-document.getElementById("paidButton").addEventListener("click", () => {
-    document.getElementById("pixSection").style.display = "none";
-    document.getElementById("successMessage").style.display = "block";
+document.getElementById("paidButton").addEventListener("click", async () => {
+    // Aqui faria a verificação real na API ASAAS se a cobrança foi paga.
+    const response = await fetch('/check-payment');
+    const data = await response.json();
+
+    if (data.paymentStatus === 'RECEIVED') {
+        document.getElementById("pixSection").style.display = "none";
+        document.getElementById("successMessage").style.display = "block";
+    } else {
+        alert("Pagamento ainda não confirmado. Tente novamente em instantes.");
+    }
 });
