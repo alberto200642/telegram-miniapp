@@ -16,8 +16,12 @@
         <div id="pixSection" style="display:none;">
             <h2>💳 Efetue o pagamento via PIX:</h2>
             <p>Valor: <strong>R$ 9.90</strong></p>
+            <img id="pixQrCode" src="" alt="QR Code PIX" style="max-width:100%; margin: 20px 0; border-radius: 10px;">
             <p>Use o código abaixo:</p>
-            <pre id="pixCode"></pre>
+            <div id="pixCodeContainer">
+                <pre id="pixCode"></pre>
+            </div>
+            <button id="copyButton">📋 Copiar Código PIX</button>
             <button id="paidButton">✅ Já paguei</button>
         </div>
 
