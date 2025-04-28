@@ -102,11 +102,34 @@ app.post('/generate-pix', async (req, res) => {
     }
 });
 
-// 📌 Rota de verificação fictícia
-app.get('/check-payment', (req, res) => {
-    const paymentStatus = 'RECEIVED';
-    res.json({ paymentStatus });
+// 📌 Rota de verificação de pagamento
+app.get('/check-payment/:id', async (req, res) => {
+    const paymentId = req.params.id;
+
+    try {
+        const statusResponse = await fetch(`https://www.asaas.com/api/v3/payments/${paymentId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'application/json',
+                'access_token': ASAAS_TOKEN
+            }
+        });
+
+        const statusText = await statusResponse.text();
+        console.log('🔍 Status cobrança:', statusText);
+
+        if (!statusResponse.ok) {
+            return res.status(500).json({ success: false, message: 'Erro ao consultar status' });
+        }
+
+        const statusData = JSON.parse(statusText);
+        res.json({ paymentStatus: statusData.status });
+    } catch (error) {
+        console.error('❌ Erro ao consultar status:', error);
+        res.status(500).json({ success: false, message: 'Erro ao consultar status' });
+    }
 });
+
 
 app.listen(port, () => {
     console.log(`🚀 Servidor rodando na porta ${port}`);
