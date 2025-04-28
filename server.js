@@ -2,13 +2,14 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Importando fetch
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 app.use(express.static('public'));
-app.use(express.json()); // importante pra aceitar JSON no body das requests
+app.use(express.json()); // Importante para aceitar JSON no corpo das requests
 
 // Substitua pelo seu token Asaas real
-const ASAAS_TOKEN = 'SEU_TOKEN_ASAAS';
+const ASAAS_TOKEN = ' $aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6Ojk3ZDAyM2ViLTY0ODgtNDAzYi04YTljLWVjZWQ3ZTk0YTEzZDo6JGFhY2hfYzVmY2I0NmEtMGI0NS00ODUyLWIxNTctNmQxYjE3MzZmYmFm';
 
 // Rota para gerar o PIX
 app.post('/generate-pix', async (req, res) => {
@@ -67,6 +68,7 @@ app.post('/generate-pix', async (req, res) => {
         const pixData = await pixResponse.json();
 
         if (pixData.payload) {
+            // Envia o QR Code PIX para o front-end
             res.json({ success: true, pixCode: pixData.payload });
         } else {
             res.status(500).json({ success: false, message: 'Erro ao gerar QR Code' });
@@ -78,7 +80,7 @@ app.post('/generate-pix', async (req, res) => {
     }
 });
 
-// Rota fictícia pra checar pagamento (simulação)
+// Rota fictícia para checar pagamento (simulação)
 app.get('/check-payment', async (req, res) => {
     const paymentStatus = 'RECEIVED';
     res.json({ paymentStatus });
