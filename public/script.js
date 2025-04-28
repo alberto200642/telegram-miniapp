@@ -17,9 +17,8 @@ document.getElementById("btnStart").addEventListener("click", async () => {
         // Exibir código PIX
         document.getElementById("pixCode").textContent = data.pixCode;
 
-        // Gerar QR Code usando API pública ou o seu backend (por enquanto via qrserver)
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(data.pixCode)}&size=300x300`;
-        document.getElementById("pixQrCode").src = qrCodeUrl;
+        // Exibir QR Code base64 vindo do backend
+        document.getElementById("pixQrCode").src = `data:image/png;base64,${data.pixImage}`;
     } else {
         alert("Erro ao gerar PIX. Tente novamente.");
     }
