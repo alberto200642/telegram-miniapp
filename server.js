@@ -18,12 +18,12 @@ if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('$aact_prod_')) {
 app.post('/generate-pix', async (req, res) => {
     try {
         // 📌 Cria cliente
-        const clienteResponse = await fetch('https://api.asaas.com/v3/customers', {
+        const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'access_token': ASAAS_TOKEN
+                'access_token: aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3'
             },
             body: JSON.stringify({
                 name: 'Cliente VIP',
@@ -44,12 +44,12 @@ app.post('/generate-pix', async (req, res) => {
         const clienteData = JSON.parse(clienteText);
 
         // 📌 Cria cobrança PIX
-        const cobrancaResponse = await fetch('https://api.asaas.com/v3/payments', {
+        const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'access_token': ASAAS_TOKEN
+                'access_token: aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3'
             },
             body: JSON.stringify({
                 billingType: 'PIX',
