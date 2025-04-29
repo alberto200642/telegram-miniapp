@@ -3,7 +3,7 @@ const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 // Verificação automática ao carregar a página
 window.onload = () => {
     const paymentId = localStorage.getItem('paymentId');
-    
+    console.log('paymentId no localStorage:', paymentId); // Isso vai exibir o valor do paymentId no console
     if (paymentId) {
         // Se houver um paymentId salvo, verifica o status automaticamente e exibe apenas "Aguardando pagamento"
         document.getElementById('startSection').style.display = 'none';
