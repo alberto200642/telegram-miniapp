@@ -87,11 +87,11 @@ app.post('/generate-pix', async (req, res) => {
         const pixData = JSON.parse(pixText);
 
         if (pixData.payload) {
-            res.json({
-                success: true,
+            res.json({ 
+                success: true, 
                 pixCode: pixData.payload,
-                pixImage: pixData.encodedImage, // base64 do QRCode
-                paymentId: cobrancaData.id // 👈 adiciona o paymentId no retorno
+                pixImage: pixData.encodedImage, // 👈 aqui pega a imagem base64 do Asaas
+                paymentId: cobrancaData.id
             });
         } else {
             res.status(500).json({ success: false, message: 'Erro ao gerar QR Code' });
@@ -129,6 +129,11 @@ app.get('/check-payment/:id', async (req, res) => {
         console.error('❌ Erro ao consultar status:', error);
         res.status(500).json({ success: false, message: 'Erro ao consultar status' });
     }
+});
+
+// 📌 Rota de healthcheck
+app.get('/healthcheck', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
 app.listen(port, () => {
