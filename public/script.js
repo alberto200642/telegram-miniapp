@@ -3,11 +3,22 @@ const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 // Verificação automática ao carregar a página
 window.onload = () => {
     const paymentId = localStorage.getItem('paymentId');
+    
     if (paymentId) {
-        // Se houver um paymentId salvo, verifica o status automaticamente
-        document.getElementById('pixSection').style.display = 'block';
-        document.getElementById('loading').style.display = 'block';
-        checkPaymentStatus(paymentId);
+        // Se houver um paymentId salvo, verifica o status automaticamente e exibe apenas "Aguardando pagamento"
+        document.getElementById('startSection').style.display = 'none';
+        document.getElementById('pixSection').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+        document.getElementById('waitingMessage').style.display = 'block'; // Exibe "Aguardando pagamento"
+        
+        document.getElementById('loading').style.display = 'block'; // Exibe o spinner
+        checkPaymentStatus(paymentId); // Inicia a verificação do pagamento
+    } else {
+        // Se não houver paymentId, exibe a tela inicial
+        document.getElementById('startSection').style.display = 'block';
+        document.getElementById('pixSection').style.display = 'none';
+        document.getElementById('successMessage').style.display = 'none';
+        document.getElementById('waitingMessage').style.display = 'none';
     }
 };
 
@@ -58,6 +69,7 @@ function checkPaymentStatus(paymentId) {
         .then(response => response.json())
         .then(data => {
             if (data.paymentStatus === 'RECEIVED') {
+                document.getElementById('waitingMessage').style.display = 'none'; // Oculta "Aguardando pagamento"
                 document.getElementById('pixSection').style.display = 'none';
                 document.getElementById('successMessage').style.display = 'block';
             } else {
