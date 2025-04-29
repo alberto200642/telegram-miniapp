@@ -9,27 +9,27 @@ window.onload = () => {
     const successMessage = document.getElementById('successMessage');
     const loading = document.getElementById('loading');
     const paidButton = document.getElementById('paidButton');
-
-    // Se o pagamento já foi confirmado
+    
+    // Se o pagamento foi confirmado, mostrar "Pagamento Confirmado"
     if (paymentStatus === 'RECEIVED') {
         startSection.style.display = 'none';
         pixSection.style.display = 'none';
         successMessage.style.display = 'block';
     }
-    // Se já gerou cobrança mas não confirmou ainda
-    else if (paymentId) {
+    // Se o pagamento está sendo aguardado (e existe um ID de pagamento)
+    else if (paymentId && paymentStatus !== 'RECEIVED') {
         startSection.style.display = 'none';
         pixSection.style.display = 'block';
         loading.style.display = 'block';
-        paidButton.style.display = 'none'; // Ocultar o botão "Já paguei"
+        paidButton.style.display = 'none'; // Ocultar o botão de pagamento
         checkPaymentStatus(paymentId);
     }
-    // Primeiro acesso (sem pagamento gerado)
+    // Se o pagamento ainda não foi gerado (primeiro acesso)
     else {
         startSection.style.display = 'block';
         pixSection.style.display = 'none';
         successMessage.style.display = 'none';
-        loading.style.display = 'none'; // Ocultar o spinner, se estiver visível
+        loading.style.display = 'none'; // Garantir que o spinner não apareça
     }
 };
 
