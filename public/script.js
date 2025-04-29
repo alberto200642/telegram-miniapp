@@ -1,5 +1,16 @@
 const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 
+// Verificação automática ao carregar a página
+window.onload = () => {
+    const paymentId = localStorage.getItem('paymentId');
+    if (paymentId) {
+        // Se houver um paymentId salvo, verifica o status automaticamente
+        document.getElementById('pixSection').style.display = 'block';
+        document.getElementById('loading').style.display = 'block';
+        checkPaymentStatus(paymentId);
+    }
+};
+
 document.getElementById('btnStart').addEventListener('click', async () => {
     document.getElementById('startSection').style.display = 'none';
     document.getElementById('pixSection').style.display = 'block';
