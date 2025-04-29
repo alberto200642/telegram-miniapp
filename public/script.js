@@ -8,50 +8,32 @@ window.onload = () => {
     const pixSection = document.getElementById('pixSection');
     const successMessage = document.getElementById('successMessage');
     const loading = document.getElementById('loading');
+    const paidButton = document.getElementById('paidButton');
 
-    if (!startSection || !pixSection || !successMessage || !loading) {
-        console.error('Elementos da interface não encontrados.');
-        return;
-    }
-
-    console.log('paymentStatus:', paymentStatus);
-    console.log('paymentId:', paymentId);
-
+    // Se o pagamento já foi confirmado
     if (paymentStatus === 'RECEIVED') {
-        // Se já confirmou pagamento
         startSection.style.display = 'none';
         pixSection.style.display = 'none';
         successMessage.style.display = 'block';
-
-    } else if (paymentId) {
-        // Se tem cobrança gerada, mas ainda não pagou
+    }
+    // Se já gerou cobrança mas não confirmou ainda
+    else if (paymentId) {
         startSection.style.display = 'none';
         pixSection.style.display = 'block';
-        loading.style.display = 'none'; // Não exibe o loading ainda
-
-        // Recupera o PIX gerado anteriormente
-        fetch(`${API_BASE}/get-payment-data/${paymentId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('pixCode').innerText = data.pixCode;
-                    document.getElementById('pixImage').src = 'data:image/png;base64,' + data.pixImage;
-                } else {
-                    console.warn('Falha ao buscar dados do pagamento.');
-                }
-            })
-            .catch(err => console.error('Erro ao recuperar dados do PIX:', err));
-
-    } else {
-        // Primeiro acesso
+        loading.style.display = 'block';
+        paidButton.style.display = 'none'; // Ocultar o botão "Já paguei"
+        checkPaymentStatus(paymentId);
+    }
+    // Primeiro acesso (sem pagamento gerado)
+    else {
         startSection.style.display = 'block';
         pixSection.style.display = 'none';
         successMessage.style.display = 'none';
-        loading.style.display = 'none';
+        loading.style.display = 'none'; // Ocultar o spinner, se estiver visível
     }
 };
 
-
+// Iniciar o processo de pagamento
 document.getElementById('btnStart').addEventListener('click', async () => {
     document.getElementById('startSection').style.display = 'none';
     document.getElementById('pixSection').style.display = 'block';
@@ -63,11 +45,13 @@ document.getElementById('btnStart').addEventListener('click', async () => {
         document.getElementById('pixCode').innerText = data.pixCode;
         document.getElementById('pixImage').src = 'data:image/png;base64,' + data.pixImage;
         localStorage.setItem('paymentId', data.paymentId);
+        localStorage.removeItem('paymentStatus'); // Limpar o status anterior
     } else {
         alert('Erro ao gerar PIX, tente novamente.');
     }
 });
 
+// Copiar o código PIX
 document.getElementById('copyButton').addEventListener('click', () => {
     const pixCode = document.getElementById('pixCode').innerText;
     navigator.clipboard.writeText(pixCode).then(() => {
@@ -77,6 +61,7 @@ document.getElementById('copyButton').addEventListener('click', () => {
     });
 });
 
+// Confirmar pagamento
 document.getElementById('paidButton').addEventListener('click', () => {
     const paymentId = localStorage.getItem('paymentId');
 
@@ -89,7 +74,7 @@ document.getElementById('paidButton').addEventListener('click', () => {
     checkPaymentStatus(paymentId);
 });
 
-
+// Função para verificar o status do pagamento
 async function checkPaymentStatus(paymentId) {
     try {
         const response = await fetch(`${API_BASE}/check-payment/${paymentId}`);
@@ -100,7 +85,7 @@ async function checkPaymentStatus(paymentId) {
             document.getElementById('pixSection').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
         } else {
-            // Continua aguardando, tenta novamente em 10 segundos
+            // Continua aguardando, tenta de novo em 10 segundos
             setTimeout(() => checkPaymentStatus(paymentId), 10000);
         }
     } catch (error) {
