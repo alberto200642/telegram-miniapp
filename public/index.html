@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <style>
+      .spinner {
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #444;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 10px auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+       0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    </style>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mini App - Prévias da Sofia</title>
@@ -22,6 +39,10 @@
             <p>Ou copie o código abaixo:</p>
             <pre id="pixCode"></pre>
             <button id="copyButton">📋 Copiar Código</button>
+            <div id="loading" style="display:none; text-align: center; margin-top: 20px;">
+            <p>⏳ Aguardando confirmação do pagamento...</p>
+            <div class="spinner"></div>
+            </div>
             <button id="paidButton">✅ Já paguei</button>
         </div>
 
