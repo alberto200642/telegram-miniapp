@@ -9,24 +9,31 @@ window.onload = () => {
     const successMessage = document.getElementById('successMessage');
     const loading = document.getElementById('loading');
 
-    // Se já pagou
+    // Garante que todos os elementos foram carregados antes
+    if (!startSection || !pixSection || !successMessage || !loading) {
+        console.error('Elementos da interface não encontrados.');
+        return;
+    }
+
+    // Estado: Pagamento já confirmado
     if (paymentStatus === 'RECEIVED') {
         startSection.style.display = 'none';
         pixSection.style.display = 'none';
         successMessage.style.display = 'block';
     }
-    // Se já gerou cobrança mas não confirmou ainda
+    // Estado: Cobrança gerada, aguardando confirmação
     else if (paymentId) {
         startSection.style.display = 'none';
         pixSection.style.display = 'block';
         loading.style.display = 'block';
         checkPaymentStatus(paymentId);
     }
-    // Primeiro acesso
+    // Estado: Primeiro acesso
     else {
         startSection.style.display = 'block';
         pixSection.style.display = 'none';
         successMessage.style.display = 'none';
+        loading.style.display = 'none';
     }
 };
 
@@ -77,7 +84,7 @@ async function checkPaymentStatus(paymentId) {
             document.getElementById('pixSection').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
         } else {
-            // Continua aguardando, tenta de novo em 10 segundos
+            // Continua aguardando, tenta novamente em 10 segundos
             setTimeout(() => checkPaymentStatus(paymentId), 10000);
         }
     } catch (error) {
