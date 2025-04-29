@@ -19,19 +19,20 @@ window.onload = () => {
     else if (paymentId) {
         startSection.style.display = 'none';
         pixSection.style.display = 'block';
-        loading.style.display = 'none';
 
-        // Se tiver código salvo, exibe
         if (pixCode && pixImage) {
             document.getElementById('pixCode').innerText = pixCode;
             document.getElementById('pixImage').src = 'data:image/png;base64,' + pixImage;
         }
 
-    } else {
+        // Exibe spinner e começa checagem
+        loading.style.display = 'block';
+        checkPaymentStatus(paymentId);
+    } 
+    else {
         startSection.style.display = 'block';
         pixSection.style.display = 'none';
         successMessage.style.display = 'none';
-        loading.style.display = 'none';
     }
 };
 
@@ -57,6 +58,10 @@ document.getElementById('btnStart').addEventListener('click', async () => {
 
 document.getElementById('copyButton').addEventListener('click', () => {
     const pixCode = document.getElementById('pixCode').innerText;
+    if (!pixCode) {
+        alert('Nenhum código para copiar.');
+        return;
+    }
     navigator.clipboard.writeText(pixCode).then(() => {
         alert('Código PIX copiado!');
     }).catch(() => {
