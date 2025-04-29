@@ -25,7 +25,7 @@ document.getElementById('copyButton').addEventListener('click', () => {
     });
 });
 
-document.getElementById('paidButton').addEventListener('click', async () => {
+document.getElementById('paidButton').addEventListener('click', () => {
     const paymentId = localStorage.getItem('paymentId');
 
     if (!paymentId) {
@@ -33,13 +33,29 @@ document.getElementById('paidButton').addEventListener('click', async () => {
         return;
     }
 
-    const response = await fetch(`/check-payment/${paymentId}`);
-    const data = await response.json();
+    // Mostra o spinner e oculta o botão de pagamento
+    document.getElementById('paidButton').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
 
-    if (data.paymentStatus === 'RECEIVED') {
-        document.getElementById('pixSection').style.display = 'none';
-        document.getElementById('successMessage').style.display = 'block';
-    } else {
-        alert('Pagamento ainda não identificado. Tente novamente em instantes.');
-    }
+    // Função para verificar o pagamento
+    checkPaymentStatus(paymentId);
 });
+
+// Função para consultar o status do pagamento
+function checkPaymentStatus(paymentId) {
+    fetch(`/check-payment/${paymentId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.paymentStatus === 'RECEIVED') {
+                document.getElementById('pixSection').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+            } else {
+                // Continua verificando a cada 10 segundos
+                setTimeout(() => checkPaymentStatus(paymentId), 10000);
+            }
+        })
+        .catch(err => {
+            console.error('Erro ao verificar status:', err);
+            setTimeout(() => checkPaymentStatus(paymentId), 10000);
+        });
+}
