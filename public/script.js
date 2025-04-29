@@ -1,24 +1,32 @@
 const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
 
-// Verificação automática ao carregar a página
 window.onload = () => {
     const paymentId = localStorage.getItem('paymentId');
-    console.log('paymentId no localStorage:', paymentId); // Isso vai exibir o valor do paymentId no console
-    if (paymentId) {
-        // Se houver um paymentId salvo, verifica o status automaticamente e exibe apenas "Aguardando pagamento"
-        document.getElementById('startSection').style.display = 'none';
-        document.getElementById('pixSection').style.display = 'none';
-        document.getElementById('successMessage').style.display = 'none';
-        document.getElementById('waitingMessage').style.display = 'block'; // Exibe "Aguardando pagamento"
-        
-        document.getElementById('loading').style.display = 'block'; // Exibe o spinner
-        checkPaymentStatus(paymentId); // Inicia a verificação do pagamento
-    } else {
-        // Se não houver paymentId, exibe a tela inicial
-        document.getElementById('startSection').style.display = 'block';
-        document.getElementById('pixSection').style.display = 'none';
-        document.getElementById('successMessage').style.display = 'none';
-        document.getElementById('waitingMessage').style.display = 'none';
+    const paymentStatus = localStorage.getItem('paymentStatus');
+
+    const startSection = document.getElementById('startSection');
+    const pixSection = document.getElementById('pixSection');
+    const successMessage = document.getElementById('successMessage');
+    const loading = document.getElementById('loading');
+
+    // Se já pagou
+    if (paymentStatus === 'RECEIVED') {
+        startSection.style.display = 'none';
+        pixSection.style.display = 'none';
+        successMessage.style.display = 'block';
+    }
+    // Se já gerou cobrança mas não confirmou ainda
+    else if (paymentId) {
+        startSection.style.display = 'none';
+        pixSection.style.display = 'block';
+        loading.style.display = 'block';
+        checkPaymentStatus(paymentId);
+    }
+    // Primeiro acesso
+    else {
+        startSection.style.display = 'block';
+        pixSection.style.display = 'none';
+        successMessage.style.display = 'none';
     }
 };
 
@@ -26,7 +34,7 @@ document.getElementById('btnStart').addEventListener('click', async () => {
     document.getElementById('startSection').style.display = 'none';
     document.getElementById('pixSection').style.display = 'block';
 
-    const response = await fetch('/generate-pix', { method: 'POST' });
+    const response = await fetch(`${API_BASE}/generate-pix`, { method: 'POST' });
     const data = await response.json();
 
     if (data.success) {
@@ -55,30 +63,25 @@ document.getElementById('paidButton').addEventListener('click', () => {
         return;
     }
 
-    // Mostra o spinner e oculta o botão de pagamento
-    document.getElementById('paidButton').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
-
-    // Função para verificar o pagamento
     checkPaymentStatus(paymentId);
 });
 
-// Função para consultar o status do pagamento
-function checkPaymentStatus(paymentId) {
-    fetch(`/check-payment/${paymentId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.paymentStatus === 'RECEIVED') {
-                document.getElementById('waitingMessage').style.display = 'none'; // Oculta "Aguardando pagamento"
-                document.getElementById('pixSection').style.display = 'none';
-                document.getElementById('successMessage').style.display = 'block';
-            } else {
-                // Continua verificando a cada 10 segundos
-                setTimeout(() => checkPaymentStatus(paymentId), 10000);
-            }
-        })
-        .catch(err => {
-            console.error('Erro ao verificar status:', err);
+async function checkPaymentStatus(paymentId) {
+    try {
+        const response = await fetch(`${API_BASE}/check-payment/${paymentId}`);
+        const data = await response.json();
+
+        if (data.paymentStatus === 'RECEIVED') {
+            localStorage.setItem('paymentStatus', 'RECEIVED');
+            document.getElementById('pixSection').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        } else {
+            // Continua aguardando, tenta de novo em 10 segundos
             setTimeout(() => checkPaymentStatus(paymentId), 10000);
-        });
+        }
+    } catch (error) {
+        console.error('Erro ao verificar status:', error);
+        alert('Erro ao verificar pagamento, tente novamente em instantes.');
+    }
 }
