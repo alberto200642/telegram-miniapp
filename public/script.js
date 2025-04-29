@@ -9,33 +9,48 @@ window.onload = () => {
     const successMessage = document.getElementById('successMessage');
     const loading = document.getElementById('loading');
 
-    // Garante que todos os elementos foram carregados antes
     if (!startSection || !pixSection || !successMessage || !loading) {
         console.error('Elementos da interface não encontrados.');
         return;
     }
 
-    // Estado: Pagamento já confirmado
+    console.log('paymentStatus:', paymentStatus);
+    console.log('paymentId:', paymentId);
+
     if (paymentStatus === 'RECEIVED') {
+        // Se já confirmou pagamento
         startSection.style.display = 'none';
         pixSection.style.display = 'none';
         successMessage.style.display = 'block';
-    }
-    // Estado: Cobrança gerada, aguardando confirmação
-    else if (paymentId) {
+
+    } else if (paymentId) {
+        // Se tem cobrança gerada, mas ainda não pagou
         startSection.style.display = 'none';
         pixSection.style.display = 'block';
-        loading.style.display = 'block';
-        checkPaymentStatus(paymentId);
-    }
-    // Estado: Primeiro acesso
-    else {
+        loading.style.display = 'none'; // Não exibe o loading ainda
+
+        // Recupera o PIX gerado anteriormente
+        fetch(`${API_BASE}/get-payment-data/${paymentId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('pixCode').innerText = data.pixCode;
+                    document.getElementById('pixImage').src = 'data:image/png;base64,' + data.pixImage;
+                } else {
+                    console.warn('Falha ao buscar dados do pagamento.');
+                }
+            })
+            .catch(err => console.error('Erro ao recuperar dados do PIX:', err));
+
+    } else {
+        // Primeiro acesso
         startSection.style.display = 'block';
         pixSection.style.display = 'none';
         successMessage.style.display = 'none';
         loading.style.display = 'none';
     }
 };
+
 
 document.getElementById('btnStart').addEventListener('click', async () => {
     document.getElementById('startSection').style.display = 'none';
