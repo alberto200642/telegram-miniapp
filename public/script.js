@@ -89,6 +89,7 @@ document.getElementById('paidButton').addEventListener('click', () => {
     checkPaymentStatus(paymentId);
 });
 
+
 async function checkPaymentStatus(paymentId) {
     try {
         const response = await fetch(`${API_BASE}/check-payment/${paymentId}`);
