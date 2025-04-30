@@ -7,18 +7,20 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 app.use(express.static('public'));
 app.use(express.json());
 
-// 🔐 Coloque seu token ASAAS real aqui
+// 🔐 Carrega o token da variável de ambiente
 const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
+const ASAAS_API_BASE = process.env.ASAAS_API_BASE;
 
 if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('aact_prod_')) {
     console.error('⚠️ Token ASAAS não configurado corretamente.');
+    process.exit(1); // Encerra o servidor se não tiver token
 }
 
 // 🔥 Rota para gerar o PIX
 app.post('/generate-pix', async (req, res) => {
     try {
         // 📌 Cria cliente
-        const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
+        const clienteResponse = await fetch(`${ASAAS_API_BASE}/customers`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,7 +46,7 @@ app.post('/generate-pix', async (req, res) => {
         const clienteData = JSON.parse(clienteText);
 
         // 📌 Cria cobrança PIX
-        const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
+        const cobrancaResponse = await fetch(`${ASAAS_API_BASE}/payments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -72,7 +74,7 @@ app.post('/generate-pix', async (req, res) => {
         const cobrancaData = JSON.parse(cobrancaText);
 
         // 📌 Busca QR Code PIX
-        const pixResponse = await fetch(`https://api.asaas.com/v3/payments/${cobrancaData.id}/pixQrCode`, {
+        const pixResponse = await fetch(`${ASAAS_API_BASE}/payments/${cobrancaData.id}/pixQrCode`, {
             headers: { 'access_token': ASAAS_TOKEN }
         });
 
@@ -90,7 +92,7 @@ app.post('/generate-pix', async (req, res) => {
             res.json({ 
                 success: true, 
                 pixCode: pixData.payload,
-                pixImage: pixData.encodedImage, // 👈 aqui pega a imagem base64 do Asaas
+                pixImage: pixData.encodedImage,
                 paymentId: cobrancaData.id
             });
         } else {
@@ -108,7 +110,7 @@ app.get('/check-payment/:id', async (req, res) => {
     const paymentId = req.params.id;
 
     try {
-        const statusResponse = await fetch(`https://www.asaas.com/api/v3/payments/${paymentId}`, {
+        const statusResponse = await fetch(`${ASAAS_API_BASE}/payments/${paymentId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
