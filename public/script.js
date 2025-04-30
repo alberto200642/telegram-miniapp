@@ -12,6 +12,14 @@ window.onload = () => {
   const loading         = document.getElementById('loading');
   const paidButton      = document.getElementById('paidButton');
   const retryButton     = document.getElementById('retryButton');
+  const resetButton   = document.getElementById('resetButton');
+
+  // Só exibe “Gerar novo PIX” se NÃO tiver recebido ainda
+  if (paymentStatus !== 'RECEIVED') {
+    resetButton.style.display = 'inline-block';
+  } else {
+    resetButton.style.display = 'none';
+  }
 
   // 1) Se já confirmado, exibe sucesso
   if (paymentStatus === 'RECEIVED') {
@@ -99,6 +107,25 @@ document.getElementById('retryButton').addEventListener('click', () => {
   document.getElementById('retryButton').style.display = 'none';
   checkPaymentStatus(paymentId);
 });
+
+// Gerar novo PIX
+document.getElementById('resetButton').addEventListener('click', () => {
+  const paymentStatus = localStorage.getItem('paymentStatus');
+  // Se já tiver recebido, não reverte nada — só exibe a tela de sucesso
+  if (paymentStatus === 'RECEIVED') {
+    alert('Pagamento já confirmado, você já tem acesso ao VIP!');
+    return;
+  }
+
+  // Caso contrário, apagamos apenas o pixCode e pixImage
+  localStorage.removeItem('pixCode');
+  localStorage.removeItem('pixImage');
+  
+  // Opcional: também esconde spinner e mostra botão “Iniciar” de novo
+  localStorage.removeItem('paymentId');
+  location.reload();
+});
+
 
 // Função que chama o backend pra checar status
 async function checkPaymentStatus(paymentId) {
