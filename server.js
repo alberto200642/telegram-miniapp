@@ -11,7 +11,7 @@ app.use(express.json());
 const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
 const ASAAS_API_BASE = process.env.ASAAS_API_BASE;
 
-if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('aact_prod_')) {
+if (!ASAAS_TOKEN) {
     console.error('⚠️ Token ASAAS não configurado corretamente.');
     process.exit(1); // Encerra o servidor se não tiver token
 }
