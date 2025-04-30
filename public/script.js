@@ -13,6 +13,13 @@ window.onload = () => {
   const paidButton      = document.getElementById('paidButton');
   const retryButton     = document.getElementById('retryButton');
   const resetButton   = document.getElementById('resetButton');
+  
+  // Limpar o Cache
+  document.getElementById('resetButton').addEventListener('click', () => {
+    localStorage.clear();
+    location.reload();
+  });
+
 
   // Só exibe “Gerar novo PIX” se NÃO tiver recebido ainda
   if (paymentStatus !== 'RECEIVED') {
