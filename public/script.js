@@ -1,4 +1,4 @@
-const API_BASE = 'https://telegram-miniapp-vo9d.onrender.com';
+const API_BASE = process.env.API_BASE;
 
 window.onload = () => {
   const paymentId     = localStorage.getItem('paymentId');
