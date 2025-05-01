@@ -131,44 +131,6 @@ app.get('/check-payment/:id', async (req, res) => {
     }
 });
 
-// 📌 Rota de webhook do Telegram
-app.post('/webhook', (req, res) => {
-    console.log('📨 Webhook recebido:', req.body);
-    res.sendStatus(200);
-
-    const message = req.body.message;
-
-    if (message && message.text === '/start') {
-        const chatId = message.chat.id;
-
-        const reply = {
-            method: 'sendMessage',
-            chat_id: chatId,
-            text: '🚀 Bem-vindo! Clique abaixo para abrir o Mini App:',
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        {
-                            text: 'Iniciar',
-                            web_app: {
-                                url: 'https://telegram-miniapp-vo9d.onrender.com'  // <-- substitua aqui pelo seu domínio render
-                            }
-                        }
-                    ]
-                ]
-            }
-        };
-
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reply)
-        })
-        .then(res => res.json())
-        .then(data => console.log('📨 Mensagem enviada:', data))
-        .catch(err => console.error('❌ Erro ao enviar mensagem:', err));
-    }
-});
 
 // 📌 Rota de healthcheck
 app.get('/healthcheck', (req, res) => {
