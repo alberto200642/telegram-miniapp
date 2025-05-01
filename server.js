@@ -7,20 +7,18 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 app.use(express.static('public'));
 app.use(express.json());
 
-// 🔐 Carrega variáveis de ambiente
-const ASAAS_TOKEN = process.env.ASAAS_TOKEN;
-const ASAAS_API_BASE = process.env.ASAAS_API_BASE;
-const BOT_TOKEN = process.env.BOT_TOKEN;
+// 🔐 Coloque seu token ASAAS real aqui
+const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmYwYTQ0MWRkLWRhNmQtNGM1Ni05ZmIzLTQwNWU1NjRiNGJlYjo6JGFhY2hfMWI0MDg3ZDItZWY1Yi00YmFmLTg0MjktN2FhZjk0OTc5ZDI3';
 
-if (!ASAAS_TOKEN || !ASAAS_API_BASE || !BOT_TOKEN) {
-    console.error('⚠️ Variáveis de ambiente não configuradas corretamente.');
-    process.exit(1);
+if (!ASAAS_TOKEN || ASAAS_TOKEN.includes('aact_prod_')) {
+    console.error('⚠️ Token ASAAS não configurado corretamente.');
 }
 
-// 📌 Rota para gerar o PIX
+// 🔥 Rota para gerar o PIX
 app.post('/generate-pix', async (req, res) => {
     try {
-        const clienteResponse = await fetch(`${ASAAS_API_BASE}/customers`, {
+        // 📌 Cria cliente
+        const clienteResponse = await fetch('https://www.asaas.com/api/v3/customers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -45,7 +43,8 @@ app.post('/generate-pix', async (req, res) => {
 
         const clienteData = JSON.parse(clienteText);
 
-        const cobrancaResponse = await fetch(`${ASAAS_API_BASE}/payments`, {
+        // 📌 Cria cobrança PIX
+        const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -72,7 +71,8 @@ app.post('/generate-pix', async (req, res) => {
 
         const cobrancaData = JSON.parse(cobrancaText);
 
-        const pixResponse = await fetch(`${ASAAS_API_BASE}/payments/${cobrancaData.id}/pixQrCode`, {
+        // 📌 Busca QR Code PIX
+        const pixResponse = await fetch(`https://api.asaas.com/v3/payments/${cobrancaData.id}/pixQrCode`, {
             headers: { 'access_token': ASAAS_TOKEN }
         });
 
@@ -87,10 +87,10 @@ app.post('/generate-pix', async (req, res) => {
         const pixData = JSON.parse(pixText);
 
         if (pixData.payload) {
-            res.json({
-                success: true,
+            res.json({ 
+                success: true, 
                 pixCode: pixData.payload,
-                pixImage: pixData.encodedImage,
+                pixImage: pixData.encodedImage, // 👈 aqui pega a imagem base64 do Asaas
                 paymentId: cobrancaData.id
             });
         } else {
@@ -108,7 +108,7 @@ app.get('/check-payment/:id', async (req, res) => {
     const paymentId = req.params.id;
 
     try {
-        const statusResponse = await fetch(`${ASAAS_API_BASE}/payments/${paymentId}`, {
+        const statusResponse = await fetch(`https://www.asaas.com/api/v3/payments/${paymentId}`, {
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
@@ -131,53 +131,11 @@ app.get('/check-payment/:id', async (req, res) => {
     }
 });
 
-// 📌 Rota de webhook do Telegram
-app.post('/webhook', (req, res) => {
-    console.log('📨 Webhook recebido:', req.body);
-    res.sendStatus(200);
-
-    const message = req.body.message;
-
-    if (message && message.text === '/start') {
-        const chatId = message.chat.id;
-
-        const reply = {
-            method: 'sendMessage',
-            chat_id: chatId,
-            text: '🚀 Bem-vindo! Clique abaixo para abrir o Mini App:',
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        {
-                            text: 'Iniciar',
-                            web_app: {
-                                url: 'https://telegram-miniapp-vo9d.onrender.com'  // <-- substitua aqui pelo seu domínio render
-                            }
-                        }
-                    ]
-                ]
-            }
-        };
-
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(reply)
-        })
-        .then(res => res.json())
-        .then(data => console.log('📨 Mensagem enviada:', data))
-        .catch(err => console.error('❌ Erro ao enviar mensagem:', err));
-    }
-});
-
-
-
 // 📌 Rota de healthcheck
 app.get('/healthcheck', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// 🚀 Inicia o servidor
 app.listen(port, () => {
     console.log(`🚀 Servidor rodando na porta ${port}`);
 });
