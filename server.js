@@ -44,6 +44,12 @@ app.post('/generate-pix', async (req, res) => {
 
         const clienteData = JSON.parse(clienteText);
 
+        // 📌 Calcula data de vencimento (amanhã)
+        const hoje = new Date();
+        hoje.setDate(hoje.getDate() + 1);
+        const dueDate = hoje.toISOString().split('T')[0];
+
+
         // 📌 Cria cobrança PIX
         const cobrancaResponse = await fetch('https://www.asaas.com/api/v3/payments', {
             method: 'POST',
@@ -55,8 +61,8 @@ app.post('/generate-pix', async (req, res) => {
             body: JSON.stringify({
                 billingType: 'PIX',
                 customer: clienteData.id,
-                value: 9.90,
-                dueDate: '2025-05-01',
+                value: 9.90,                
+                dueDate: dueDate,
                 description: 'Cobrança Conteúdo VIP',
                 externalReference: 'ID_EXTERNO'
             })
